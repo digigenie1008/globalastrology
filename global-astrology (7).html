@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Astrology — Illuminate Your Cosmic Path</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Philosopher:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #E8BF6A;
+  --gold-light: #F5DFA0;
+  --gold-dim: #B89B4F;
+  --deep: #0A0A12;
+  --navy: #0D0D1F;
+  --purple-deep: #1A0A2E;
+  --cosmic: #150B2E;
+  --text-light: #FFFDF8;
+  --text-muted: #DDD5C8;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--deep);
+  color: var(--text-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ====== CUSTOM CURSOR TRAIL ====== */
+.cursor-star {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  box-shadow: 0 0 8px var(--gold), 0 0 15px var(--gold-dim);
+  transition: opacity 0.1s;
+}
+
+/* ====== LOADING SCREEN ====== */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--deep);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1s ease, visibility 1s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+#loader .orbit-ring {
+  width: 120px; height: 120px;
+  border: 2px solid transparent;
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+#loader .orbit-ring:nth-child(2) {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-top-color: var(--gold-light);
+  animation-duration: 0.9s;
+  animation-direction: reverse;
+}
+#loader .orbit-ring:nth-child(3) {
+  position: absolute;
+  width: 44px; height: 44px;
+  border-top-color: var(--gold-dim);
+  animation-duration: 0.6s;
+}
+.loader-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+#loader p {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--gold);
+  margin-top: 2rem;
+  letter-spacing: 0.3em;
+  font-size: 0.8rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* ====== STARFIELD CANVAS ====== */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ====== NAV ====== */
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1.2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(10,10,18,0.95) 0%, transparent 100%);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s;
+}
+nav.scrolled { background: rgba(10,10,18,0.97); box-shadow: 0 1px 30px rgba(212,168,83,0.08); }
+.nav-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 20px rgba(212,168,83,0.3);
+}
+.nav-logo span { color: var(--gold-light); font-weight: 400; }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  font-family: 'Philosopher', sans-serif;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.3s, text-shadow 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+.nav-links a:hover { color: var(--gold); text-shadow: 0 0 15px rgba(212,168,83,0.4); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  font-family: 'Philosopher', sans-serif;
+  padding: 0.6rem 1.8rem;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: all 0.4s;
+  cursor: pointer;
+}
+.nav-cta:hover {
+  background: var(--gold);
+  color: var(--deep);
+  box-shadow: 0 0 30px rgba(212,168,83,0.3);
+}
+
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+.hamburger span { width: 25px; height: 1.5px; background: var(--gold); transition: all 0.3s; }
+
+/* ====== HERO ====== */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 1;
+  overflow: hidden;
+}
+.hero-bg-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,168,83,0.08) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: breathe 6s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%,-50%) scale(1.3); opacity: 1; } }
+
+.hero-content { position: relative; z-index: 2; max-width: 800px; padding: 0 2rem; }
+.hero-eyebrow {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.5em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 1s 0.5s ease forwards;
+}
+.hero-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--gold);
+  text-shadow: 0 0 60px rgba(212,168,83,0.2);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 1s 0.8s ease forwards;
+}
+.hero-title em {
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  color: var(--gold-light);
+}
+.hero-sub {
+  font-size: 1.35rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  line-height: 1.8;
+  max-width: 600px;
+  margin: 0 auto 0;
+}
+
+/* Hero Carousel */
+.hero-carousel {
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.hero-slide {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
+}
+.hero-slide.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: relative;
+}
+.hero-slide .hero-title {
+  opacity: 1;
+  animation: none;
+  margin-bottom: 1.5rem;
+}
+.hero-slide .hero-sub {
+  opacity: 1;
+  animation: none;
+}
+.hero-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 2.5rem;
+}
+.hero-carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(232,191,106,0.2);
+  border: 1px solid rgba(232,191,106,0.3);
+  cursor: pointer;
+  transition: all 0.4s;
+}
+.hero-carousel-dot.active {
+  background: var(--gold);
+  box-shadow: 0 0 12px rgba(232,191,106,0.5);
+  transform: scale(1.2);
+}
+.hero-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 1s 0.8s ease forwards;
+}
+.btn-primary {
+  font-family: 'Philosopher', sans-serif;
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  color: var(--deep);
+  border: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+.btn-primary:hover::before { left: 100%; }
+.btn-primary:hover { box-shadow: 0 0 40px rgba(212,168,83,0.4); transform: translateY(-2px); }
+
+.btn-ghost {
+  font-family: 'Philosopher', sans-serif;
+  padding: 1rem 3rem;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(212,168,83,0.3);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s;
+  text-decoration: none;
+}
+.btn-ghost:hover { border-color: var(--gold); box-shadow: 0 0 25px rgba(212,168,83,0.15); }
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 1s 1.8s ease forwards;
+}
+.scroll-indicator span {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100% { opacity: 0.3; transform: scaleY(0.5); } 50% { opacity: 1; transform: scaleY(1); } }
+
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(30px); } }
+
+/* ====== COSMIC DIVIDER ====== */
+.cosmic-divider {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.cosmic-divider::before {
+  content: '✦';
+  color: var(--gold);
+  font-size: 1.2rem;
+  text-shadow: 0 0 20px rgba(212,168,83,0.5);
+}
+.cosmic-divider::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+
+/* ====== SECTIONS COMMON ====== */
+section { position: relative; z-index: 1; }
+.section-eyebrow {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.section-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 40px rgba(212,168,83,0.15);
+}
+.section-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 4rem;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ====== ABOUT ====== */
+#about { padding: 6rem 3rem; }
+.about-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zodiac-wheel {
+  width: 350px;
+  height: 350px;
+  border: 1px solid rgba(212,168,83,0.2);
+  border-radius: 50%;
+  position: relative;
+  animation: slowSpin 60s linear infinite;
+}
+@keyframes slowSpin { to { transform: rotate(360deg); } }
+.zodiac-wheel::before {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border: 1px solid rgba(212,168,83,0.1);
+  border-radius: 50%;
+}
+.zodiac-wheel::after {
+  content: '';
+  position: absolute;
+  inset: 50px;
+  border: 1px solid rgba(212,168,83,0.08);
+  border-radius: 50%;
+}
+.zodiac-symbol {
+  position: absolute;
+  font-size: 1.4rem;
+  color: var(--gold);
+  text-shadow: 0 0 10px rgba(212,168,83,0.4);
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+}
+.about-text h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.8rem;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+.about-text p {
+  font-size: 1.15rem;
+  line-height: 1.9;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  font-weight: 300;
+}
+.about-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 2.5rem;
+}
+.stat-item { text-align: center; }
+.stat-num {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 2.5rem;
+  color: var(--gold);
+  display: block;
+}
+.stat-label {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* ====== SERVICES ====== */
+#services { padding: 6rem 3rem; }
+.services-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+.service-card {
+  position: relative;
+  padding: 3rem 2.5rem;
+  background: linear-gradient(145deg, rgba(26,10,46,0.6), rgba(13,13,31,0.8));
+  border: 1px solid rgba(212,168,83,0.1);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+.service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(212,168,83,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+  z-index: 0;
+}
+.service-card:hover {
+  transform: translateY(-10px) rotateX(2deg) rotateY(-2deg);
+  border-color: rgba(212,168,83,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(212,168,83,0.1);
+}
+.service-card:hover::before { opacity: 1; }
+.service-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  filter: drop-shadow(0 0 15px rgba(212,168,83,0.3));
+  transition: transform 0.5s;
+  position: relative;
+  z-index: 1;
+}
+.service-card:hover .service-icon { transform: scale(1.15) translateY(-5px); }
+.service-card h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+.service-card p {
+  font-size: 1.15rem;
+  line-height: 1.85;
+  color: var(--text-light);
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+.service-features {
+  list-style: none;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+.service-features li {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+.service-features li::before {
+  content: '◇';
+  position: absolute;
+  left: 0;
+  color: var(--gold-dim);
+  font-size: 0.8rem;
+}
+.service-link {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: gap 0.3s, color 0.3s, background 0.3s;
+  position: relative;
+  z-index: 2;
+  padding: 0.7rem 1.5rem;
+  border: 1px solid rgba(232,191,106,0.3);
+}
+.service-link:hover { gap: 1rem; color: var(--deep); background: var(--gold); border-color: var(--gold); }
+
+/* ====== 3D PLANET SCENE ====== */
+#cosmos { padding: 4rem 3rem; }
+.cosmos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+#planet-canvas {
+  width: 100%;
+  height: 500px;
+  border: 1px solid rgba(212,168,83,0.05);
+  background: radial-gradient(circle at center, rgba(26,10,46,0.4), transparent);
+}
+.cosmos-text blockquote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--gold-light);
+  line-height: 1.6;
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 2rem;
+  margin-bottom: 2rem;
+}
+.cosmos-text p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* ====== TESTIMONIALS ====== */
+#testimonials { padding: 6rem 3rem; }
+.testimonial-carousel {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+.testimonial-slide {
+  text-align: center;
+  padding: 3rem 2rem;
+  display: none;
+}
+.testimonial-slide.active { display: block; animation: fadeIn 0.6s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.testimonial-stars { color: var(--gold); font-size: 1rem; margin-bottom: 1.5rem; letter-spacing: 0.3em; }
+.testimonial-text {
+  font-size: 1.4rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--text-light);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+.testimonial-author {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(212,168,83,0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.carousel-dot.active { background: var(--gold); box-shadow: 0 0 10px rgba(212,168,83,0.4); }
+
+/* ====== ZODIAC INTERACTIVE ====== */
+#zodiac-explorer { padding: 6rem 3rem; }
+.zodiac-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.2rem;
+}
+.zodiac-btn {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26,10,46,0.3);
+  border: 1px solid rgba(212,168,83,0.1);
+  cursor: pointer;
+  transition: all 0.4s;
+  color: var(--text-muted);
+  gap: 0.5rem;
+}
+.zodiac-btn:hover, .zodiac-btn.active {
+  background: rgba(212,168,83,0.08);
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 30px rgba(212,168,83,0.1);
+  transform: scale(1.05);
+}
+.zodiac-btn .z-symbol { font-size: 1.8rem; }
+.zodiac-btn .z-name {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+#zodiac-info {
+  max-width: 700px;
+  margin: 3rem auto 0;
+  text-align: center;
+  min-height: 120px;
+}
+#zodiac-info h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.5rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+#zodiac-info .z-dates {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  margin-bottom: 1rem;
+}
+#zodiac-info p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* ====== CONTACT / CTA ====== */
+#contact { padding: 6rem 3rem; }
+.contact-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+.contact-wrapper form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.form-row { display: flex; gap: 1.5rem; }
+.form-row input { flex: 1; }
+input, select, textarea {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: rgba(26,10,46,0.4);
+  border: 1px solid rgba(212,168,83,0.15);
+  color: var(--text-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(212,168,83,0.1);
+}
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+select { appearance: none; cursor: pointer; }
+select option { background: var(--navy); }
+textarea { resize: vertical; min-height: 120px; }
+.form-submit {
+  font-family: 'Philosopher', sans-serif;
+  padding: 1.1rem 3rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  color: var(--deep);
+  border: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s;
+  align-self: center;
+}
+.form-submit:hover { box-shadow: 0 0 40px rgba(212,168,83,0.3); transform: translateY(-2px); }
+
+/* ====== FOOTER ====== */
+footer {
+  position: relative;
+  z-index: 1;
+  padding: 4rem 3rem 2rem;
+  border-top: 1px solid rgba(212,168,83,0.08);
+}
+.footer-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+.footer-brand h4 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--gold);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.footer-brand p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; font-weight: 300; }
+.footer-col h5 {
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 1.2rem;
+}
+.footer-col a {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 0.3rem 0;
+  transition: color 0.3s;
+}
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(212,168,83,0.05);
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+.social-links { display: flex; gap: 1.5rem; margin-top: 1rem; }
+.social-links a {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  transition: color 0.3s, transform 0.3s;
+  text-decoration: none;
+}
+.social-links a:hover { color: var(--gold); transform: translateY(-2px); }
+
+/* ====== SCROLL REVEAL ====== */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1024px) {
+  .services-grid { grid-template-columns: 1fr; max-width: 500px; }
+  .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .about-visual { height: 350px; }
+  .cosmos-container { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,18,0.98);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s;
+  }
+  .mobile-menu.open { opacity: 1; visibility: visible; }
+  .mobile-menu a {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+    text-decoration: none;
+  }
+  .zodiac-grid { grid-template-columns: repeat(4, 1fr); }
+  .form-row { flex-direction: column; gap: 1.5rem; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .about-stats { gap: 1.5rem; }
+}
+
+/* ====== FLOATING SOCIAL BUTTONS ====== */
+.floating-socials {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+.float-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+  position: relative;
+}
+.float-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.float-btn:hover { transform: scale(1.12) translateY(-3px); }
+.float-btn:hover::before { opacity: 1; }
+
+.float-whatsapp {
+  background: #25D366;
+}
+.float-whatsapp::before { box-shadow: 0 0 20px rgba(37,211,102,0.5); }
+.float-whatsapp svg { width: 32px; height: 32px; fill: white; }
+.float-whatsapp:hover { box-shadow: 0 6px 30px rgba(37,211,102,0.4); }
+
+.float-whatsapp .pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(37,211,102,0.4);
+  animation: floatPulse 2s ease-in-out infinite;
+}
+@keyframes floatPulse {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0; }
+}
+
+.float-instagram {
+  background: linear-gradient(135deg, #833AB4, #FD1D1D, #F77737);
+}
+.float-instagram::before { box-shadow: 0 0 20px rgba(131,58,180,0.5); }
+.float-instagram svg { width: 28px; height: 28px; fill: white; }
+.float-instagram:hover { box-shadow: 0 6px 30px rgba(131,58,180,0.4); }
+
+.float-btn .tooltip {
+  position: absolute;
+  right: 72px;
+  background: rgba(10,10,18,0.95);
+  border: 1px solid rgba(232,191,106,0.2);
+  color: var(--text-light);
+  font-family: 'Philosopher', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s;
+  pointer-events: none;
+}
+.float-btn:hover .tooltip { opacity: 1; transform: translateX(0); }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loader">
+  <div class="loader-wrap">
+    <div class="orbit-ring"></div>
+    <div class="orbit-ring"></div>
+    <div class="orbit-ring"></div>
+  </div>
+  <p>Aligning the Stars</p>
+</div>
+
+<!-- STARFIELD -->
+<canvas id="starfield"></canvas>
+
+<!-- CURSOR TRAIL -->
+<div class="cursor-star" id="cs1"></div>
+<div class="cursor-star" id="cs2"></div>
+<div class="cursor-star" id="cs3"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#services" onclick="closeMobile()">Services</a>
+  <a href="#zodiac-explorer" onclick="closeMobile()">Zodiac</a>
+  <a href="#testimonials" onclick="closeMobile()">Testimonials</a>
+  <a href="#contact" onclick="closeMobile()">Consult</a>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#hero" class="nav-logo">Global <span>Astrology</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#zodiac-explorer">Zodiac</a></li>
+    <li><a href="#testimonials">Voices</a></li>
+  </ul>
+  <a href="https://wa.me/919831099933?text=Hello%20Global%20Astrology%2C%20I%20would%20like%20to%20book%20a%20reading.%20Please%20share%20the%20available%20slots%20and%20details.%20Thank%20you." target="_blank" class="nav-cta">Book a Reading</a>
+  <button class="hamburger" id="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-glow"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Vedic Wisdom · Cosmic Guidance · Sacred Alignment</p>
+    
+    <div class="hero-carousel" id="heroCarousel">
+      <div class="hero-slide active">
+        <h1 class="hero-title">Illuminate Your<br><em>Cosmic Path</em></h1>
+        <p class="hero-sub">Where ancient celestial wisdom meets modern clarity. Discover the hidden rhythms of the universe through Astrology, Numerology, and Vaastu Shastra.</p>
+      </div>
+      <div class="hero-slide">
+        <h1 class="hero-title">Unlock the Hidden Power<br><em>Behind Your Numbers</em></h1>
+        <p class="hero-sub">Your name, birth date, and everyday numbers carry vibrations that silently shape your luck, health, and wealth. One correction can change everything.</p>
+      </div>
+      <div class="hero-slide">
+        <h1 class="hero-title">Why Does Your Space<br><em>Feel Heavy?</em></h1>
+        <p class="hero-sub">Negative energy in your home or office drains prosperity and peace. Vaastu alignment restores the flow — people feel the shift within days.</p>
+      </div>
+      <div class="hero-slide">
+        <h1 class="hero-title">Thousands Have Found<br><em>Their Answers</em></h1>
+        <p class="hero-sub">Clients across 10+ countries trust Global Astrology for life-changing guidance. Your transformation is one consultation away.</p>
+      </div>
+    </div>
+
+    <div class="hero-carousel-dots" id="heroCarouselDots"></div>
+
+    <div class="hero-buttons">
+      <a href="https://wa.me/919831099933?text=Hello%20Global%20Astrology%2C%20I%20would%20like%20to%20book%20a%20consultation.%20Please%20share%20the%20details%20on%20available%20services%20and%20timings.%20Thank%20you." target="_blank" class="btn-primary">Book Free Consultation ✦</a>
+      <a href="#services" class="btn-ghost">Explore Services</a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll to discover</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="cosmic-divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-eyebrow reveal">Our Legacy</p>
+  <h2 class="section-title reveal">Written in the Stars</h2>
+  <p class="section-subtitle reveal">For over two decades, Global Astrology has guided thousands of souls toward their destined paths through the ancient sciences of the cosmos.</p>
+  <div class="about-grid">
+    <div class="about-visual reveal">
+      <div class="zodiac-wheel" id="zodiacWheel"></div>
+    </div>
+    <div class="about-text reveal">
+      <h3>Ancient Wisdom, Modern Insight</h3>
+      <p>Global Astrology stands at the confluence of timeless Vedic traditions and contemporary life. Our master astrologers decode the celestial tapestry woven at the moment of your birth, revealing purpose, potential, and the path forward.</p>
+      <p>Every consultation is a sacred dialogue between the cosmos and you — translated through decades of devoted study, deep intuition, and unwavering commitment to your highest truth.</p>
+      <div class="about-stats">
+        <div class="stat-item">
+          <span class="stat-num" data-target="10">0</span>
+          <span class="stat-label">Countries Reached</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="5">0</span>
+          <span class="stat-label">Years of Experience</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="1" data-suffix="">0</span>
+          <span class="stat-label">Goal : Your Growth</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cosmic-divider"></div>
+
+<!-- SERVICES -->
+<section id="services">
+  <p class="section-eyebrow reveal">Sacred Sciences</p>
+  <h2 class="section-title reveal">Our Services</h2>
+  <p class="section-subtitle reveal">Three pillars of cosmic wisdom, each illuminating a different dimension of your existence and potential.</p>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <span class="service-icon">⭐</span>
+      <h3>Astrology</h3>
+      <p>Stop guessing. Your Vedic birth chart reveals <strong style="color:var(--gold-light)">exactly</strong> when to act on career moves, relationships, and finances — with timing so precise, it feels like the universe is speaking directly to you.</p>
+      <ul class="service-features">
+        <li>Know your best years, months & days for success</li>
+        <li>Find out why relationships aren't working</li>
+        <li>Uncover hidden career paths aligned to your stars</li>
+        <li>Kundli matching for lasting, harmonious marriages</li>
+        <li>Remedies that actually shift your planetary energy</li>
+      </ul>
+      <a href="https://wa.me/919831099933?text=Hello%20Global%20Astrology%2C%20I%20am%20interested%20in%20an%20Astrology%20consultation%20(Birth%20Chart%20%2F%20Kundli%20Reading).%20Please%20share%20the%20details%2C%20fees%2C%20and%20available%20timings.%20Thank%20you." target="_blank" class="service-link">Get Your Reading →</a>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">🔢</span>
+      <h3>Numerology</h3>
+      <p>Your name and birth date carry invisible vibrations that shape your luck, health, and wealth every single day. A precise numerological correction can unlock doors you didn't know existed.</p>
+      <ul class="service-features">
+        <li>Life Path Number — your soul's true purpose</li>
+        <li>Name correction for success & positive energy</li>
+        <li>Business name selection for maximum growth</li>
+        <li>Lucky mobile, vehicle & house numbers</li>
+        <li>Personalised lucky colors, dates & directions</li>
+      </ul>
+      <a href="https://wa.me/919831099933?text=Hello%20Global%20Astrology%2C%20I%20am%20interested%20in%20a%20Numerology%20consultation%20(Name%20%26%20Number%20Analysis).%20Please%20share%20the%20details%2C%20fees%2C%20and%20available%20timings.%20Thank%20you." target="_blank" class="service-link">Get Your Analysis →</a>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">🏛️</span>
+      <h3>Vaastu Shastra</h3>
+      <p>If your home or office feels stagnant, draining, or unlucky — the space itself may be misaligned. Vaastu corrections create an energetic shift you can feel within days, not months.</p>
+      <ul class="service-features">
+        <li>Home & office energy flow assessment</li>
+        <li>Directional corrections for health & wealth</li>
+        <li>New construction guidance from the ground up</li>
+        <li>Simple remedies — no demolition needed</li>
+        <li>Industrial & commercial space alignment</li>
+      </ul>
+      <a href="https://wa.me/919831099933?text=Hello%20Global%20Astrology%2C%20I%20am%20interested%20in%20a%20Vaastu%20Shastra%20consultation%20(Home%20%2F%20Office%20Space%20Alignment).%20Please%20share%20the%20details%2C%20fees%2C%20and%20available%20timings.%20Thank%20you." target="_blank" class="service-link">Get Your Assessment →</a>
+    </div>
+  </div>
+</section>
+
+<div class="cosmic-divider"></div>
+
+<!-- 3D COSMOS -->
+<section id="cosmos">
+  <div class="cosmos-container">
+    <canvas id="planet-canvas" class="reveal"></canvas>
+    <div class="cosmos-text reveal">
+      <blockquote>"The cosmos is within us. We are made of star-stuff. We are a way for the universe to know itself."</blockquote>
+      <p>At Global Astrology, we believe every soul carries the map of the heavens within. Our role is to illuminate what is already written — helping you align with the grand cosmic design that has been unfolding since the moment of your first breath.</p>
+    </div>
+  </div>
+</section>
+
+<div class="cosmic-divider"></div>
+
+<!-- ZODIAC EXPLORER -->
+<section id="zodiac-explorer">
+  <p class="section-eyebrow reveal">Interactive</p>
+  <h2 class="section-title reveal">Zodiac Explorer</h2>
+  <p class="section-subtitle reveal">Select your sign to discover its cosmic essence.</p>
+  <div class="zodiac-grid reveal" id="zodiacGrid"></div>
+  <div id="zodiac-info" class="reveal">
+    <h3>Select Your Sign</h3>
+    <p>Click on a zodiac symbol above to discover its unique cosmic attributes and guidance.</p>
+  </div>
+</section>
+
+<div class="cosmic-divider"></div>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <p class="section-eyebrow reveal">Voices of the Guided</p>
+  <h2 class="section-title reveal">What Our Clients Say</h2>
+  <div class="testimonial-carousel reveal">
+    <div class="testimonial-slide active">
+      <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+      <p class="testimonial-text">"The precision of my birth chart reading was extraordinary. Events that were predicted came to pass with remarkable accuracy. Global Astrology changed how I approach every major life decision."</p>
+      <p class="testimonial-author">— Priya M., Mumbai</p>
+    </div>
+    <div class="testimonial-slide">
+      <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+      <p class="testimonial-text">"After implementing the Vaastu corrections in my office, the shift in energy was palpable. Our business growth exceeded all projections within six months."</p>
+      <p class="testimonial-author">— Rajesh K., Dubai</p>
+    </div>
+    <div class="testimonial-slide">
+      <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+      <p class="testimonial-text">"The numerology consultation for my daughter's name was deeply enlightening. The careful attention to vibrational alignment gave us such confidence and peace of mind."</p>
+      <p class="testimonial-author">— Ananya S., London</p>
+    </div>
+    <div class="testimonial-slide">
+      <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+      <p class="testimonial-text">"I was skeptical at first, but the depth and specificity of the astrological insights left me in awe. This is genuine wisdom, not vague horoscopes."</p>
+      <p class="testimonial-author">— Michael T., New York</p>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+  </div>
+</section>
+
+<div class="cosmic-divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-eyebrow reveal">Begin</p>
+  <h2 class="section-title reveal">Book Your Consultation</h2>
+  <p class="section-subtitle reveal">Take the first step toward cosmic clarity. Share your details and we will illuminate your path.</p>
+  <div class="contact-wrapper reveal">
+    <form onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <input type="text" placeholder="Full Name" required id="formName">
+        <input type="email" placeholder="Email Address" required id="formEmail">
+      </div>
+      <div class="form-row">
+        <input type="tel" placeholder="Phone Number" id="formPhone">
+        <input type="date" placeholder="Date of Birth" id="formDOB">
+      </div>
+      <select required id="formService">
+        <option value="" disabled selected>Select Service</option>
+        <option value="Astrology — Birth Chart Reading">Astrology — Birth Chart Reading</option>
+        <option value="Numerology — Name & Number Analysis">Numerology — Name & Number Analysis</option>
+        <option value="Vaastu Shastra — Space Alignment">Vaastu Shastra — Space Alignment</option>
+        <option value="Combined Consultation">Combined Consultation</option>
+      </select>
+      <textarea placeholder="Tell us about your concerns or questions..." id="formMessage"></textarea>
+      <button type="submit" class="form-submit">Request Consultation ✦</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h4>Global Astrology</h4>
+      <p>Illuminating cosmic paths for over two decades. Ancient Vedic wisdom translated for the modern seeker.</p>
+      <div class="social-links">
+        <a href="https://www.instagram.com/globalastrology5?igsh=MWZxeHZjaDJmb25pMA==" target="_blank" title="Instagram">📷</a>
+        <a href="https://wa.me/919831099933" target="_blank" title="WhatsApp">💬</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <a href="#services">Astrology</a>
+      <a href="#services">Numerology</a>
+      <a href="#services">Vaastu Shastra</a>
+      <a href="#contact">Combined Reading</a>
+    </div>
+    <div class="footer-col">
+      <h5>Explore</h5>
+      <a href="#zodiac-explorer">Zodiac Guide</a>
+      <a href="#about">Our Story</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Connect</h5>
+      <a href="https://wa.me/919831099933" target="_blank">+91 9831099933</a>
+      <a href="https://wa.me/919831099933" target="_blank">WhatsApp Consult</a>
+      <a href="https://www.instagram.com/globalastrology5?igsh=MWZxeHZjaDJmb25pMA==" target="_blank">Instagram</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2026 Global Astrology. All rights reserved. ✦ Crafted under celestial alignment.
+  </div>
+</footer>
+
+<!-- FLOATING SOCIAL BUTTONS -->
+<div class="floating-socials">
+  <a href="https://www.instagram.com/globalastrology5?igsh=MWZxeHZjaDJmb25pMA==" target="_blank" class="float-btn float-instagram" aria-label="Instagram">
+    <span class="tooltip">Follow on Instagram</span>
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  </a>
+  <a href="https://wa.me/919831099933?text=Hello%20Global%20Astrology%2C%20I%20visited%20your%20website%20and%20would%20like%20to%20know%20more%20about%20your%20services.%20Please%20share%20the%20details.%20Thank%20you." target="_blank" class="float-btn float-whatsapp" aria-label="WhatsApp">
+    <div class="pulse-ring"></div>
+    <span class="tooltip">Chat on WhatsApp</span>
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+</div>
+
+<script>
+// ===== LOADING SCREEN =====
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1500);
+});
+
+// ===== STARFIELD =====
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+function createStars(count) {
+  stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.3,
+      a: Math.random(),
+      da: (Math.random() - 0.5) * 0.01,
+      color: Math.random() > 0.85 ? '#D4A853' : '#ffffff'
+    });
+  }
+}
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.a += s.da;
+    if (s.a > 1 || s.a < 0.1) s.da *= -1;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = s.a;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(drawStars);
+}
+resizeCanvas();
+createStars(300);
+drawStars();
+window.addEventListener('resize', () => { resizeCanvas(); createStars(300); });
+
+// ===== CURSOR TRAIL =====
+const cursorStars = [document.getElementById('cs1'), document.getElementById('cs2'), document.getElementById('cs3')];
+let mouse = { x: 0, y: 0 };
+let positions = [{x:0,y:0},{x:0,y:0},{x:0,y:0}];
+document.addEventListener('mousemove', e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  cursorStars.forEach(s => s.style.opacity = '0.8');
+});
+function animateCursor() {
+  positions.forEach((p, i) => {
+    const target = i === 0 ? mouse : positions[i - 1];
+    p.x += (target.x - p.x) * (0.3 - i * 0.08);
+    p.y += (target.y - p.y) * (0.3 - i * 0.08);
+    cursorStars[i].style.left = p.x - 3 + 'px';
+    cursorStars[i].style.top = p.y - 3 + 'px';
+    cursorStars[i].style.transform = `scale(${1 - i * 0.25})`;
+  });
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// ===== NAV SCROLL =====
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ===== MOBILE MENU =====
+function toggleMobile() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMobile() {
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
+// ===== ZODIAC WHEEL SYMBOLS =====
+const symbols = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const wheel = document.getElementById('zodiacWheel');
+symbols.forEach((s, i) => {
+  const el = document.createElement('span');
+  el.className = 'zodiac-symbol';
+  const angle = (i * 30 - 90) * (Math.PI / 180);
+  const r = 160;
+  el.style.transform = `translate(${Math.cos(angle) * r - 10}px, ${Math.sin(angle) * r - 10}px)`;
+  el.textContent = s;
+  wheel.appendChild(el);
+});
+
+// ===== COUNTER ANIMATION =====
+const counters = document.querySelectorAll('.stat-num');
+let counted = false;
+function animateCounters() {
+  if (counted) return;
+  counted = true;
+  counters.forEach(c => {
+    const target = +c.dataset.target;
+    const suffix = c.dataset.suffix !== undefined ? c.dataset.suffix : '+';
+    // If suffix is empty (like "1 Goal"), show instantly — no counting
+    if (suffix === '') {
+      c.textContent = target;
+      return;
+    }
+    const duration = 1200;
+    const start = performance.now();
+    function update(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      c.textContent = Math.floor(eased * target).toLocaleString() + suffix;
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+// Dedicated observer for counter section
+const statsSection = document.querySelector('.about-stats');
+if (statsSection) {
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !counted) {
+        animateCounters();
+      }
+    });
+  }, { threshold: 0.3 });
+  statsObserver.observe(statsSection);
+}
+
+// ===== SCROLL REVEAL =====
+const revealElements = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+revealElements.forEach(el => observer.observe(el));
+
+// ===== 3D PLANET CANVAS =====
+const planetCanvas = document.getElementById('planet-canvas');
+const pctx = planetCanvas.getContext('2d');
+function resizePlanet() {
+  const rect = planetCanvas.getBoundingClientRect();
+  planetCanvas.width = rect.width;
+  planetCanvas.height = rect.height;
+}
+resizePlanet();
+window.addEventListener('resize', resizePlanet);
+
+let planetAngle = 0;
+let ringParticles = [];
+for (let i = 0; i < 200; i++) {
+  ringParticles.push({
+    angle: Math.random() * Math.PI * 2,
+    dist: 120 + Math.random() * 60,
+    speed: 0.002 + Math.random() * 0.003,
+    size: Math.random() * 2 + 0.5,
+    y_offset: (Math.random() - 0.5) * 15,
+    opacity: 0.3 + Math.random() * 0.7
+  });
+}
+
+let moons = [
+  { angle: 0, dist: 210, speed: 0.008, size: 8, color: '#A89060' },
+  { angle: 2, dist: 250, speed: 0.005, size: 5, color: '#8B7E6A' }
+];
+
+let orbitalStars = [];
+for (let i = 0; i < 80; i++) {
+  orbitalStars.push({
+    x: Math.random() * 800,
+    y: Math.random() * 500,
+    r: Math.random() * 1.2,
+    a: Math.random(),
+    da: (Math.random() - 0.5) * 0.02
+  });
+}
+
+function drawPlanet() {
+  const w = planetCanvas.width, h = planetCanvas.height;
+  pctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2;
+  const planetR = Math.min(w, h) * 0.18;
+
+  // Background stars
+  orbitalStars.forEach(s => {
+    s.a += s.da;
+    if (s.a > 1 || s.a < 0.1) s.da *= -1;
+    pctx.beginPath();
+    pctx.arc(s.x * (w/800), s.y * (h/500), s.r, 0, Math.PI * 2);
+    pctx.fillStyle = `rgba(212,168,83,${s.a * 0.5})`;
+    pctx.fill();
+  });
+
+  // Planet glow
+  const glow = pctx.createRadialGradient(cx, cy, planetR * 0.5, cx, cy, planetR * 3);
+  glow.addColorStop(0, 'rgba(212,168,83,0.08)');
+  glow.addColorStop(1, 'transparent');
+  pctx.fillStyle = glow;
+  pctx.fillRect(0, 0, w, h);
+
+  // Ring particles (behind planet)
+  ringParticles.forEach(p => {
+    p.angle += p.speed;
+    const px = cx + Math.cos(p.angle) * p.dist;
+    const py = cy + Math.sin(p.angle) * p.dist * 0.3 + p.y_offset;
+    if (Math.sin(p.angle) < 0) {
+      pctx.beginPath();
+      pctx.arc(px, py, p.size, 0, Math.PI * 2);
+      pctx.fillStyle = `rgba(212,168,83,${p.opacity * 0.5})`;
+      pctx.fill();
+    }
+  });
+
+  // Planet body
+  const planetGrad = pctx.createRadialGradient(cx - planetR * 0.3, cy - planetR * 0.3, 0, cx, cy, planetR);
+  planetGrad.addColorStop(0, '#2A1A40');
+  planetGrad.addColorStop(0.5, '#1A0E2E');
+  planetGrad.addColorStop(1, '#0A0510');
+  pctx.beginPath();
+  pctx.arc(cx, cy, planetR, 0, Math.PI * 2);
+  pctx.fillStyle = planetGrad;
+  pctx.fill();
+
+  // Planet surface bands
+  pctx.save();
+  pctx.beginPath();
+  pctx.arc(cx, cy, planetR, 0, Math.PI * 2);
+  pctx.clip();
+  for (let i = 0; i < 6; i++) {
+    const by = cy - planetR + (planetR * 2 / 6) * i + Math.sin(planetAngle + i) * 3;
+    pctx.fillStyle = `rgba(212,168,83,${0.03 + i * 0.008})`;
+    pctx.fillRect(cx - planetR, by, planetR * 2, planetR * 0.15);
+  }
+  pctx.restore();
+
+  // Planet rim light
+  pctx.beginPath();
+  pctx.arc(cx, cy, planetR, 0, Math.PI * 2);
+  pctx.strokeStyle = 'rgba(212,168,83,0.15)';
+  pctx.lineWidth = 1.5;
+  pctx.stroke();
+
+  // Ring particles (in front of planet)
+  ringParticles.forEach(p => {
+    const px = cx + Math.cos(p.angle) * p.dist;
+    const py = cy + Math.sin(p.angle) * p.dist * 0.3 + p.y_offset;
+    if (Math.sin(p.angle) >= 0) {
+      pctx.beginPath();
+      pctx.arc(px, py, p.size, 0, Math.PI * 2);
+      pctx.fillStyle = `rgba(212,168,83,${p.opacity * 0.6})`;
+      pctx.fill();
+    }
+  });
+
+  // Moons
+  moons.forEach(m => {
+    m.angle += m.speed;
+    const mx = cx + Math.cos(m.angle) * m.dist;
+    const my = cy + Math.sin(m.angle) * m.dist * 0.4;
+    const moonGrad = pctx.createRadialGradient(mx - m.size * 0.2, my - m.size * 0.2, 0, mx, my, m.size);
+    moonGrad.addColorStop(0, m.color);
+    moonGrad.addColorStop(1, '#1A0E2E');
+    pctx.beginPath();
+    pctx.arc(mx, my, m.size, 0, Math.PI * 2);
+    pctx.fillStyle = moonGrad;
+    pctx.fill();
+    pctx.strokeStyle = 'rgba(212,168,83,0.2)';
+    pctx.lineWidth = 0.5;
+    pctx.stroke();
+  });
+
+  planetAngle += 0.005;
+  requestAnimationFrame(drawPlanet);
+}
+drawPlanet();
+
+// ===== ZODIAC EXPLORER =====
+const zodiacData = [
+  { symbol: '♈', name: 'Aries', dates: 'Mar 21 — Apr 19', element: 'Fire', desc: 'The cosmic pioneer. Aries ignites action, courage, and the relentless pursuit of new beginnings. Your fire burns brightest when leading the charge into uncharted territory.' },
+  { symbol: '♉', name: 'Taurus', dates: 'Apr 20 — May 20', element: 'Earth', desc: 'The celestial anchor. Taurus embodies steadfast determination, sensual appreciation, and the patient art of building lasting abundance from the earth itself.' },
+  { symbol: '♊', name: 'Gemini', dates: 'May 21 — Jun 20', element: 'Air', desc: 'The cosmic communicator. Gemini dances between worlds with quicksilver intellect, boundless curiosity, and the gift of weaving connections across all dimensions.' },
+  { symbol: '♋', name: 'Cancer', dates: 'Jun 21 — Jul 22', element: 'Water', desc: 'The lunar guardian. Cancer carries the ocean\'s depth within — profound intuition, fierce protectiveness, and the nurturing power that creates sanctuary wherever it flows.' },
+  { symbol: '♌', name: 'Leo', dates: 'Jul 23 — Aug 22', element: 'Fire', desc: 'The sovereign flame. Leo radiates creative majesty, generous warmth, and the magnetic presence that transforms every stage into a throne of golden light.' },
+  { symbol: '♍', name: 'Virgo', dates: 'Aug 23 — Sep 22', element: 'Earth', desc: 'The celestial healer. Virgo channels divine precision, devoted service, and the sacred art of refining chaos into perfection through meticulous, loving attention.' },
+  { symbol: '♎', name: 'Libra', dates: 'Sep 23 — Oct 22', element: 'Air', desc: 'The cosmic harmonist. Libra seeks the elegant balance between all forces — beauty and justice, self and other, holding the scales of the universe in graceful equilibrium.' },
+  { symbol: '♏', name: 'Scorpio', dates: 'Oct 23 — Nov 21', element: 'Water', desc: 'The phoenix eternal. Scorpio plunges into the deepest mysteries, wielding transformation as power, and emerging from every shadow reborn in greater truth.' },
+  { symbol: '♐', name: 'Sagittarius', dates: 'Nov 22 — Dec 21', element: 'Fire', desc: 'The cosmic archer. Sagittarius aims beyond every horizon with philosophical fire, adventurous spirit, and an unquenchable thirst for truth and meaning.' },
+  { symbol: '♑', name: 'Capricorn', dates: 'Dec 22 — Jan 19', element: 'Earth', desc: 'The mountain sovereign. Capricorn ascends with disciplined ambition, ancient wisdom, and the patient mastery that builds empires destined to endure across ages.' },
+  { symbol: '♒', name: 'Aquarius', dates: 'Jan 20 — Feb 18', element: 'Air', desc: 'The visionary current. Aquarius channels humanity\'s future with revolutionary thought, humanitarian vision, and the electric courage to reimagine what is possible.' },
+  { symbol: '♓', name: 'Pisces', dates: 'Feb 19 — Mar 20', element: 'Water', desc: 'The cosmic dreamer. Pisces dissolves boundaries between worlds, channeling divine compassion, artistic transcendence, and the mystical knowing that flows beyond words.' }
+];
+
+const zodiacGrid = document.getElementById('zodiacGrid');
+zodiacData.forEach((z, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'zodiac-btn';
+  btn.innerHTML = `<span class="z-symbol">${z.symbol}</span><span class="z-name">${z.name}</span>`;
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.zodiac-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const info = document.getElementById('zodiac-info');
+    info.innerHTML = `
+      <h3>${z.symbol} ${z.name}</h3>
+      <p class="z-dates">${z.dates} · ${z.element} Element</p>
+      <p>${z.desc}</p>
+    `;
+    info.style.animation = 'none';
+    info.offsetHeight;
+    info.style.animation = 'fadeIn 0.5s ease';
+  });
+  zodiacGrid.appendChild(btn);
+});
+
+// ===== TESTIMONIAL CAROUSEL =====
+const slides = document.querySelectorAll('.testimonial-slide');
+const dotsContainer = document.getElementById('carouselDots');
+let currentSlide = 0;
+slides.forEach((_, i) => {
+  const dot = document.createElement('button');
+  dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+  dot.addEventListener('click', () => goToSlide(i));
+  dotsContainer.appendChild(dot);
+});
+function goToSlide(n) {
+  slides[currentSlide].classList.remove('active');
+  document.querySelectorAll('.carousel-dot')[currentSlide].classList.remove('active');
+  currentSlide = n;
+  slides[currentSlide].classList.add('active');
+  document.querySelectorAll('.carousel-dot')[currentSlide].classList.add('active');
+}
+setInterval(() => goToSlide((currentSlide + 1) % slides.length), 5000);
+
+// ===== 3D TILT ON CARDS =====
+document.querySelectorAll('.service-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `translateY(-10px) rotateX(${y * -10}deg) rotateY(${x * 10}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+  });
+});
+
+// ===== FORM SUBMIT — SEND TO WHATSAPP =====
+function handleSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('formName').value.trim();
+  const email = document.getElementById('formEmail').value.trim();
+  const phone = document.getElementById('formPhone').value.trim();
+  const dob = document.getElementById('formDOB').value;
+  const service = document.getElementById('formService').value;
+  const message = document.getElementById('formMessage').value.trim();
+
+  let text = `Hello Global Astrology,\n\nI would like to book a consultation. Here are my details:\n\n`;
+  text += `Name: ${name}\n`;
+  text += `Email: ${email}\n`;
+  if (phone) text += `Phone: ${phone}\n`;
+  if (dob) text += `Date of Birth: ${dob}\n`;
+  text += `Service Interested In: ${service}\n`;
+  if (message) text += `My Query: ${message}\n`;
+  text += `\nPlease share the available timings and fees. Thank you.`;
+
+  const waURL = `https://wa.me/919831099933?text=${encodeURIComponent(text)}`;
+  
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = '✦ Opening WhatsApp... ✦';
+  btn.style.background = 'linear-gradient(135deg, #25D366, #128C7E)';
+  
+  window.open(waURL, '_blank');
+
+  setTimeout(() => {
+    btn.textContent = 'Request Consultation ✦';
+    btn.style.background = 'linear-gradient(135deg, var(--gold), var(--gold-dim))';
+  }, 3000);
+}
+
+// ===== HERO CAROUSEL =====
+const heroSlides = document.querySelectorAll('.hero-slide');
+const heroDotsContainer = document.getElementById('heroCarouselDots');
+let currentHeroSlide = 0;
+
+heroSlides.forEach((_, i) => {
+  const dot = document.createElement('button');
+  dot.className = 'hero-carousel-dot' + (i === 0 ? ' active' : '');
+  dot.addEventListener('click', () => goToHeroSlide(i));
+  heroDotsContainer.appendChild(dot);
+});
+
+function goToHeroSlide(n) {
+  heroSlides[currentHeroSlide].classList.remove('active');
+  document.querySelectorAll('.hero-carousel-dot')[currentHeroSlide].classList.remove('active');
+  currentHeroSlide = n;
+  heroSlides[currentHeroSlide].classList.add('active');
+  document.querySelectorAll('.hero-carousel-dot')[currentHeroSlide].classList.add('active');
+}
+setInterval(() => goToHeroSlide((currentHeroSlide + 1) % heroSlides.length), 5000);
+</script>
+</body>
+</html>
